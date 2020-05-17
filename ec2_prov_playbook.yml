@@ -1,0 +1,24 @@
+- name: Provision AWS EC2 instance
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  
+  vars:
+    region: us-east-1
+    instance_type: t2.micro
+    ami: ami-0323c3dd2da7fb37d
+  
+  tasks:
+  - name: Launching EC2
+    ec2: 
+      instance_type: t2.micro
+      key_name: my-key-pair
+      image: "{{ ami }}"
+      region: us-east-1
+      instance_type: "{{ instance_type }}"
+      region: "{{ region }}"
+      count: 1
+      wait: yes
+      assign_public_ip: yes
+      vpc_subnet_id: subnet-499d4904
+      
