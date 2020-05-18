@@ -3,22 +3,62 @@
   connection: local
   gather_facts: false
   
-  vars:
-    region: us-east-1
-    instance_type: t2.micro
-    ami: ami-0323c3dd2da7fb37d
+  pre_tasks:
+    - include_vars: group_vars/ec2.yml
   
   tasks:
-  - name: Launching EC2
+  
+  - name: Configure EC2 Security Group.
+    ec2_group:
+      name: "{{ project_label }}-sg"
+      description: Security Group for {{ project_name }} Servers
+      state: present
+      region: "{{ ec2_region }}"
+      vpc_id: "{{ ec2_vpc_id }}"
+      rules: "{{ security_group.incoming_rules }}"
+      rules_egress: "{{ security_group.outgoing_rules }}"
+        
+  - name: Provision {{ ec2_count }} EC2 Instances
     ec2: 
-      instance_type: t2.micro
-      key_name: my-key-pair
-      image: "{{ ami }}"
-      region: us-east-1
-      instance_type: "{{ instance_type }}"
-      region: "{{ region }}"
-      count: 1
+      key_name: "{{ ec2_keypair }}"
+      image: "{{ ec2_image }}"
+      instance_type: "{{ ec2_instance_type }}"
+      region: "{{ ec2_region }}"
+      count: "{{ ec2_count }}"
       wait: yes
       assign_public_ip: yes
-      vpc_subnet_id: subnet-499d4904
-      
+      vpc_subnet_id: "{{ ec2_subnet_id }}"
+      group: "{{ project_label }}-sg"
+      instance_tags:
+        Name: Node-{{ ec2_count }}
+    register: ec2
+    
+  - name: debug
+    debug: var=ec2
+
+  - name: Add running instances to the "launched" group
+    add_host: 
+      hostname: "{{ item.public_ip }}"
+      groupname: launched
+    with_items: "{{ ec2.instances }}"
+
+  - name: Wait for SSH to be available
+    wait_for:
+      host: "{{ item.public_ip }}"
+      port: 22
+      delay: 10
+      connect_timeout: 20
+      timeout: 300
+      state: started
+    with_items: "{{ ec2.instances }}"
+
+- name: Configure instance for the docker application
+  hosts: launched
+  connection: ssh
+  vars:
+    ansible_ssh_private_key_file: /Users/andreagallicchio/Desktop/Provision-AWS-EC2-With-Ansible/MyKeyPair.pem
+  gather_facts: true
+  remote_user: ec2-user
+  become: yes
+  roles:
+    - docker

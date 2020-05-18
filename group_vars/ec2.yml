@@ -1,0 +1,36 @@
+# Project specific parameters
+project_label: "Project"
+project_name: "Project"
+
+# Region & VPC
+ec2_region: us-east-1
+ec2_vpc_id: vpc-1a96c760
+ec2_subnet_id: subnet-499d4904
+
+# Instance parameters
+ec2_instance_type: t2.micro
+ec2_image: ami-0323c3dd2da7fb37d
+ec2_keypair: MyKeyPair
+ec2_count: 1
+
+# Security group rules
+security_group:
+  incoming_rules:
+    - proto: tcp
+      from_port: 80
+      to_port: 80
+      cidr_ip: 0.0.0.0/0
+    - proto: tcp
+      from_port: 443
+      to_port: 443
+      cidr_ip: 0.0.0.0/0
+    - proto: tcp
+      from_port: 22
+      to_port: 22
+      cidr_ip: 0.0.0.0/0
+
+  outgoing_rules:
+    - proto: -1
+      from_port: -1
+      to_port: -1
+      cidr_ip: 0.0.0.0/0
