@@ -1,0 +1,55 @@
+- name: upgrade all packages
+  yum: 
+   name: "*" 
+   state: latest
+   
+- name: Install docker and python-pip
+  yum: 
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - docker
+    - python-pip
+
+- name: Ensure Docker is started and enabled at boot
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: "Ensure the user {{ ansible_user }} is part of the docker group"
+  user: 
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+# I install the docker python module as it is recommended for the docker_swarm module
+- name: Ensure docker python module and jsondiff are installed
+  pip:
+    name: 
+      - docker
+      # jsondiff and pyyaml are needed by the docker_stack module
+      - jsondiff
+      - pyyaml
+  register: pip_install_docker
+  ignore_errors: yes
+
+- name: Fetching pip
+  get_url:
+    url: https://bootstrap.pypa.io/get-pip.py
+    dest: "/home/{{ ansible_user }}/get-pip.py"
+    mode: u=rwx,g=rwx,o=rx
+  when: pip_install_docker is failed
+
+- name: Installing pip
+  command: "python /home/{{ ansible_user }}/get-pip.py"
+  when: pip_install_docker is failed
+
+- name: Installing docker python module and jsondiff
+  pip:
+    name: 
+      - docker
+      # jsondiff and pyyaml are needed by the docker_stack module
+      - jsondiff
+      - pyyaml
+  when: pip_install_docker is failed

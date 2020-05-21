@@ -1,0 +1,36 @@
+- name: Configure Swarm Security Groups
+  ec2_group:
+    name: swarm
+    tags:
+      Name: swarm
+    description: >-
+      Allow swarm members to communicate between themselves and allow ssh
+    region: "{{ ec2_region }}"
+    vpc_id: "{{ ec2_vpc_id }}"
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        rule_desc: "Allow ssh from everywhere."
+        cidr_ip: 0.0.0.0/0
+        cidr_ipv6: ::/0
+      - proto: tcp
+        from_port: 2377
+        to_port: 2377
+        group_name: swarm
+        rule_desc: "Cluster management communications."
+      - proto: tcp
+        from_port: 7946
+        to_port: 7946
+        group_name: swarm
+        rule_desc: "Communication among nodes."
+      - proto: udp
+        from_port: 7946
+        to_port: 7946
+        group_name: swarm
+        rule_desc: "Communication among nodes."
+      - proto: udp
+        from_port: 4789
+        to_port: 4789
+        group_name: swarm
+        rule_desc: "Overlay network traffic."

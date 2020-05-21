@@ -1,0 +1,8 @@
+# Region & VPC
+ec2_region: us-east-1
+ec2_vpc_id: vpc-1a96c760
+ec2_subnet_id: subnet-499d4904
+
+# Instance parameters
+ec2_instance_type: t2.micro
+ec2_image: ami-0323c3dd2da7fb37d

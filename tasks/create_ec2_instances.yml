@@ -1,0 +1,16 @@
+- name: Creating EC2 instances
+  ec2:
+    key_name: "{{ KEY_PAIR_NAME }}"
+    group: "{{ item.group }}"
+    instance_type: "{{ ec2_instance_type }}"
+    image: "{{ ec2_image }}"
+    region: "{{ ec2_region }}"
+    wait: yes
+    exact_count: 1
+    count_tag:
+      Name: "{{ item.tags.Name }}"
+    instance_tags: "{{ item.tags }}"
+    vpc_subnet_id: "{{ ec2_subnet_id }}"
+    assign_public_ip: yes
+  loop: "{{ EC2_INSTANCES }}"
+  register: create_ec2
