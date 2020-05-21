@@ -1,11 +1,19 @@
 language: python
 python:
-- "3.6"
+  - "3.6"
 
 # command to install dependencies
 install:
-- pip install -r tests/test-requirements.txt
+  - pip install -r tests/test-requirements.txt
 
 # command to run tests
 script:
-- ansible-lint install/*.yml -x 303,701,601,206,602,403,301,306 -v
+  - ansible-lint install/*.yml -x 303,701,601,206,602,403,301,306 -v
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  local_dir: build
+  on:
+    branch: master
