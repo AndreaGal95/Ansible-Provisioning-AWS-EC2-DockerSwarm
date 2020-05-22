@@ -10,14 +10,3 @@
   tasks:
   - include_tasks: tasks/create_security_groups.yml
   - include_tasks: tasks/create_ec2_instances.yml
-
-#- name: Configure instance for the docker application
-#  hosts: launched
-#  connection: ssh
-#  vars:
-#    ansible_ssh_private_key_file: /Users/andreagallicchio/Desktop/Provision-AWS-EC2-With-Ansible/MyKeyPair.pem
-#  gather_facts: true
-#  remote_user: ec2-user
-#  become: yes
-#  roles:
-#    - docker
