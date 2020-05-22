@@ -1,0 +1,19 @@
+language: python
+python:
+  - "3.6"
+
+install:
+  - pip install -r tests/test-requirements.txt
+
+script:
+  - ansible-lint install/*.yml -x 303,701,601,206,602,403,301,306 -v
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  keep_history: true
+  github-token: $GITHUB_TOKEN
+  target_branch: master
+  # Travis-CI will automatically trigger a job whenever there are some changes made on the branch specified in this field.
+  on:
+    branch: staging
